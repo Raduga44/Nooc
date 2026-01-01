@@ -85,11 +85,6 @@ export async function toggleLike(postId: number) {
   const userId = (await cookies()).get("nooc_user_id")?.value;
   if (!userId) return;
 
-  await prisma.post.update({
-    where: { id: postId },
-    data: { likes: { increment: 1 } }
-  });
-
   revalidatePath(`/post/${postId}`);
 }
 

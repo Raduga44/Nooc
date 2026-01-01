@@ -1,82 +1,36 @@
-// --- ここが抜けていました ---
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
+// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
 }
-// ------------------------
 
-// ユーザーモデル
-model User {
-  id           String        @id
-  name         String
-  password     String
-  isAdmin      Boolean       @default(false)
-  rooms        Room[]
-  posts        Post[]
-  comments     Comment[]
-  roomComments RoomComment[]
-  likes        Like[]        
+datasource db {
+  provider = "postgresql"  
+  url      = env("DATABASE_URL")
 }
 
-// ルームモデル
-model Room {
-  id           Int           @id @default(autoincrement())
-  name         String
-  password     String?
-  userId       String
-  user         User          @relation(fields: [userId], references: [id])
-  posts        Post[]
-  roomComments RoomComment[]
-}
-
-// 作品投稿モデル
+// 投稿データの定義
 model Post {
-  id        Int       @id @default(autoincrement())
-  title     String?
-  caption   String?
-  imageUrl  String
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  roomId    Int
-  room      Room      @relation(fields: [roomId], references: [id])
-  comments  Comment[]
-  likesData Like[]    
-  createdAt DateTime  @default(now())
+  id          Int      @id @default(autoincrement())
+  title       String   // タイトル
+  imageUrl    String   // メイン画像の保存パス
+  caption     String?  // 説明文
+  isTechnical Boolean  @default(false) // 技術公開モードかどうか
+  
+  // 技術公開時の工程（1つの投稿に複数の工程を紐づける）
+  steps       Step[]
+
+  // 人気順・おすすめ計算用
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
 }
 
-// 作品へのコメント
-model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String
-  postId    Int
-  post      Post     @relation(fields: [postId], references: [id])
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-}
-
-// ルーム掲示板へのコメント
-model RoomComment {
-  id        Int      @id @default(autoincrement())
-  content   String
-  roomId    Int
-  room      Room     @relation(fields: [roomId], references: [id])
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-}
-
-// 1人1いいね
-model Like {
-  id     Int    @id @default(autoincrement())
-  postId Int
-  userId String
-  post   Post   @relation(fields: [postId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
-
-  @@unique([postId, userId])
+// 工程データの定義
+model Step {
+  id          Int    @id @default(autoincrement())
+  order       Int    // 順番 (1, 2, 3...)
+  description String // 説明文
+  imagePath   String // 工程ごとの画像パス
+  postId      Int
+  post        Post   @relation(fields: [postId], references: [id])
 }
