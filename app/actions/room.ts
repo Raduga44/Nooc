@@ -78,15 +78,6 @@ export async function deleteRoom(formData: FormData) {
   }
 }
 
-/**
- * 3. ハート（いいね）機能
- */
-export async function toggleLike(postId: number) {
-  const userId = (await cookies()).get("nooc_user_id")?.value;
-  if (!userId) return;
-
-  revalidatePath(`/post/${postId}`);
-}
 
 /**
  * 4. 作品へのコメント投稿
