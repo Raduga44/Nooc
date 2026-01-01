@@ -1,0 +1,82 @@
+// --- ここが抜けていました ---
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+// ------------------------
+
+// ユーザーモデル
+model User {
+  id           String        @id
+  name         String
+  password     String
+  isAdmin      Boolean       @default(false)
+  rooms        Room[]
+  posts        Post[]
+  comments     Comment[]
+  roomComments RoomComment[]
+  likes        Like[]        
+}
+
+// ルームモデル
+model Room {
+  id           Int           @id @default(autoincrement())
+  name         String
+  password     String?
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  posts        Post[]
+  roomComments RoomComment[]
+}
+
+// 作品投稿モデル
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String?
+  caption   String?
+  imageUrl  String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  roomId    Int
+  room      Room      @relation(fields: [roomId], references: [id])
+  comments  Comment[]
+  likesData Like[]    
+  createdAt DateTime  @default(now())
+}
+
+// 作品へのコメント
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+// ルーム掲示板へのコメント
+model RoomComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  roomId    Int
+  room      Room     @relation(fields: [roomId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+// 1人1いいね
+model Like {
+  id     Int    @id @default(autoincrement())
+  postId Int
+  userId String
+  post   Post   @relation(fields: [postId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+}

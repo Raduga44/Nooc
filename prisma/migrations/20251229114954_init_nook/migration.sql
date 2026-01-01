@@ -1,0 +1,21 @@
+-- CreateTable
+CREATE TABLE "Post" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "caption" TEXT,
+    "isTechnical" BOOLEAN NOT NULL DEFAULT false,
+    "likes" INTEGER NOT NULL DEFAULT 0,
+    "views" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "Step" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "order" INTEGER NOT NULL,
+    "description" TEXT NOT NULL,
+    "imagePath" TEXT NOT NULL,
+    "postId" INTEGER NOT NULL,
+    CONSTRAINT "Step_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
